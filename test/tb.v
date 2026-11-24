@@ -27,8 +27,15 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
-  // Replace tt_um_example with your module name:
-  tt_um_example user_project (
+  // Instancia del módulo principal del proyecto:
+  // En simulación (sin GL_TEST) puedes reducir CLK_HZ para acelerar pruebas con cocotb.
+`ifndef GL_TEST
+  tt_um_banco_inyectores #(
+      .CLK_HZ(1_000)
+  ) user_project (
+`else
+  tt_um_banco_inyectores user_project (
+`endif
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
@@ -36,10 +43,10 @@ module tb ();
       .VGND(VGND),
 `endif
 
-      .ui_in  (ui_in),    // Dedicated inputs
-      .uo_out (uo_out),   // Dedicated outputs
+      .ui_in  (ui_in),    // Dedicated inputs: ui_in[0] = pwm_in
+      .uo_out (uo_out),   // Dedicated outputs: [5:0] inyectores, [6] relay_bomba
       .uio_in (uio_in),   // IOs: Input path
-      .uio_out(uio_out),  // IOs: Output path
+      .uio_out(uio_out),  // IOs: Output path: [6:0] seg7 (anodo comun)
       .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
       .ena    (ena),      // enable - goes high when design is selected
       .clk    (clk),      // clock
